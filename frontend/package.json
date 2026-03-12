@@ -29,13 +29,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "start:prod": "npm run build && serve -s build -l 3000",
-    "pm2:start": "pm2 start ../ecosystem.config.js --env production",
-    "pm2:stop": "pm2 stop ../ecosystem.config.js",
-    "pm2:restart": "pm2 restart ../ecosystem.config.js",
-    "pm2:logs": "pm2 logs",
-    "pm2:delete": "pm2 delete ../ecosystem.config.js"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
