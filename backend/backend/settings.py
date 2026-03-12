@@ -162,7 +162,7 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React development server
     "http://127.0.0.1:3000",
-    "http://74.225.252.8:8080"
+    "http://74.225.252.8:3000"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
