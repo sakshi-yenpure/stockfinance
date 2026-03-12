@@ -64,8 +64,20 @@ export const authService = {
     return body;
   },
 
-  logout: () => {
-    clearTokens();
+  logout: async () => {
+    try {
+      const token = getAccessToken();
+      if (token) {
+        await fetch(`${API_BASE}/api/auth/logout/`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+    } catch (err) {
+      console.error('Logout error on backend:', err);
+    } finally {
+      clearTokens();
+    }
   },
 
   getCurrentUser: async (): Promise<any> => {

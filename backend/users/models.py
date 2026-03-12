@@ -55,3 +55,62 @@ class PortfolioStock(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.stock.symbol} ({self.sector})"
+
+
+class UserActivity(models.Model):
+    """Model to track user activities in the application"""
+    ACTION_CHOICES = [
+        ('SIGNUP', 'User Signup'),
+        ('LOGIN', 'User Login'),
+        ('LOGOUT', 'User Logout'),
+        ('ADD_STOCK', 'Added Stock to Portfolio'),
+        ('REMOVE_STOCK', 'Removed Stock from Portfolio'),
+        ('VIEW_STOCKS', 'Viewed Sector Stocks'),
+        ('VIEW_PORTFOLIO', 'Viewed Portfolio'),
+        ('VIEW_METALS', 'Viewed Metals Prices'),
+        ('API_ACCESS', 'Accessed API Endpoint'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities', null=True, blank=True)
+    action = models.CharField(max_length=50, choices=ACTION_CHOICES)
+    description = models.TextField(blank=True, null=True)
+    api_key_used = models.CharField(max_length=100, blank=True, null=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'user_activities'
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        user_name = self.user.username if self.user else "Anonymous"
+        return f"{user_name} - {self.action} at {self.timestamp}"
+
+
+class NewsletterSubscription(models.Model):
+    """Model to store newsletter subscribers"""
+    email = models.EmailField(unique=True)
+    subscribed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'newsletter_subscriptions'
+
+    def __str__(self):
+        return self.email
+
+
+class PaymentRecord(models.Model):
+    """Model to store dummy payment details"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
+    amount = models.FloatField()
+    card_number = models.CharField(max_length=16)  # Dummy card number
+    expiry = models.CharField(max_length=5)
+    cvv = models.CharField(max_length=3)
+    status = models.CharField(max_length=20, default='SUCCESS')
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'payment_records'
+
+    def __str__(self):
+        return f"Payment of ${self.amount} by {self.user.email}"

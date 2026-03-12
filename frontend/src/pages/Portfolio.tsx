@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import PERatioGraph from '../components/PERatioGraph';
@@ -301,10 +301,134 @@ const SectorCardButton = styled.button`
   }
 `;
 
+const NewsletterSection = styled(motion.div)`
+  margin-top: 4rem;
+  padding: 3rem;
+  background: ${props => props.theme.colors.cardBackground};
+  border-radius: ${props => props.theme.borderRadius.large};
+  border: 1px solid ${props => props.theme.colors.border};
+  text-align: center;
+  backdrop-filter: blur(10px);
+`;
+
+const NewsletterTitle = styled.h2`
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  background: ${props => props.theme.colors.accentPrimary};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+`;
+
+const NewsletterButton = styled.button`
+  background: ${props => props.theme.colors.accentPrimary};
+  border: none;
+  color: #000;
+  padding: 1rem 2.5rem;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: ${props => props.theme.shadows.glow};
+
+  &:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+  }
+`;
+
+const PaymentModal = styled(motion.div)`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 450px;
+  background: #1a1a1a;
+  padding: 2.5rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  z-index: 1001;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+`;
+
+const Overlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+`;
+
+const PaymentForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+`;
+
+const PaymentInput = styled.input`
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 1rem;
+  border-radius: 10px;
+  color: white;
+  font-size: 1rem;
+
+  &:focus {
+    outline: none;
+    border-color: #4facfe;
+  }
+`;
+
 const Portfolio: React.FC = () => {
   const navigate = useNavigate();
   const { user, portfolio, portfolioBySector, removeFromPortfolio } = useAuth();
   const [expandedSymbol, setExpandedSymbol] = useState<string | null>(null);
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentData, setPaymentData] = useState({ card: '', expiry: '', cvv: '' });
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handlePayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsProcessing(true);
+    try {
+      // First subscribe
+      await fetch('/api/auth/newsletter/subscribe/', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({ email: user?.email })
+      });
+
+      // Then process payment
+      await fetch('/api/auth/payments/dummy/', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({
+          amount: 9.99,
+          card_number: paymentData.card,
+          expiry: paymentData.expiry,
+          cvv: paymentData.cvv
+        })
+      });
+
+      alert('Successfully subscribed! Thank you for your payment.');
+      setShowPayment(false);
+    } catch (err) {
+      alert('Payment failed. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const totalValue = portfolio.reduce((total, item) => {
     return total + item.price;
@@ -480,6 +604,77 @@ const Portfolio: React.FC = () => {
               })}
             </SectorsContainer>
           </div>
+
+          <NewsletterSection
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <NewsletterTitle>Do you want our newsletter?</NewsletterTitle>
+            <p style={{ color: '#888', marginBottom: '2rem' }}>
+              Get exclusive daily insights, market predictions, and portfolio tips for just $9.99/month.
+            </p>
+            <NewsletterButton onClick={() => setShowPayment(true)}>
+              Subscribe Now 🚀
+            </NewsletterButton>
+          </NewsletterSection>
+
+          <AnimatePresence>
+            {showPayment && (
+              <>
+                <Overlay 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowPayment(false)}
+                />
+                <PaymentModal
+                  initial={{ opacity: 0, scale: 0.9, y: '-40%', x: '-50%' }}
+                  animate={{ opacity: 1, scale: 1, y: '-50%', x: '-50%' }}
+                  exit={{ opacity: 0, scale: 0.9, y: '-40%', x: '-50%' }}
+                >
+                  <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '0.5rem' }}>💳 Dummy Payment</h3>
+                  <p style={{ color: '#888', fontSize: '0.9rem' }}>Enter any dummy details to test the integration.</p>
+                  
+                  <PaymentForm onSubmit={handlePayment}>
+                    <PaymentInput 
+                      placeholder="Card Number (16 digits)" 
+                      maxLength={16}
+                      required
+                      value={paymentData.card}
+                      onChange={e => setPaymentData({...paymentData, card: e.target.value})}
+                    />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                      <PaymentInput 
+                        placeholder="MM/YY" 
+                        maxLength={5}
+                        required
+                        value={paymentData.expiry}
+                        onChange={e => setPaymentData({...paymentData, expiry: e.target.value})}
+                      />
+                      <PaymentInput 
+                        placeholder="CVV" 
+                        maxLength={3}
+                        required
+                        value={paymentData.cvv}
+                        onChange={e => setPaymentData({...paymentData, cvv: e.target.value})}
+                      />
+                    </div>
+                    <NewsletterButton type="submit" disabled={isProcessing} style={{ marginTop: '1rem' }}>
+                      {isProcessing ? 'Processing...' : 'Pay $9.99'}
+                    </NewsletterButton>
+                    <button 
+                      type="button"
+                      onClick={() => setShowPayment(false)}
+                      style={{ background: 'transparent', border: 'none', color: '#666', cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                  </PaymentForm>
+                </PaymentModal>
+              </>
+            )}
+          </AnimatePresence>
         </>
       )}
     </PortfolioContainer>

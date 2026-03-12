@@ -6,7 +6,8 @@ from django.contrib.auth import login
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db import IntegrityError
 from .serializers import UserRegistrationSerializer, LoginSerializer, UserSerializer, StockSerializer, PortfolioStockSerializer
-from .models import Stock, PortfolioStock
+from .models import Stock, PortfolioStock, UserActivity, NewsletterSubscription, PaymentRecord
+from django.shortcuts import render
 import yfinance as yf
 import logging
 import requests
@@ -86,6 +87,15 @@ def register_user(request):
         # Save user with hashed password
         user = serializer.save()
         
+        # Log the activity
+        UserActivity.objects.create(
+            user=user,
+            action='SIGNUP',
+            description=f"User {user.email} signed up",
+            api_key_used=user.api_key,
+            ip_address=request.META.get('REMOTE_ADDR')
+        )
+        
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
@@ -131,6 +141,15 @@ def login_user(request):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         user = serializer.validated_data['user']
+        
+        # Log the login activity
+        UserActivity.objects.create(
+            user=user,
+            action='LOGIN',
+            description=f"User {user.email} logged in",
+            api_key_used=user.api_key,
+            ip_address=request.META.get('REMOTE_ADDR')
+        )
         
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
@@ -407,6 +426,15 @@ def add_to_portfolio(request):
             }
         )
         
+        # Log the activity
+        UserActivity.objects.create(
+            user=request.user,
+            action='ADD_STOCK',
+            description=f"Added {symbol} to portfolio in {sector} sector",
+            api_key_used=request.user.api_key,
+            ip_address=request.META.get('REMOTE_ADDR')
+        )
+        
         return Response({
             'success': True,
             'message': 'Stock added to portfolio successfully',
@@ -635,3 +663,109 @@ def refresh_sector_prices(request, sector):
             'message': 'Error refreshing sector prices',
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_user(request):
+    """Log the logout activity and clear any server-side state if necessary"""
+    try:
+        UserActivity.objects.create(
+            user=request.user,
+            action='LOGOUT',
+            description=f"User {request.user.email} logged out",
+            api_key_used=request.user.api_key,
+            ip_address=request.META.get('REMOTE_ADDR')
+        )
+        return Response({
+            'success': True,
+            'message': 'Logout successful'
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"Error during logout: {str(e)}")
+        return Response({
+            'success': False,
+            'message': 'Internal server error',
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def subscribe_newsletter(request):
+    """Subscribe to newsletter and log activity"""
+    try:
+        email = request.data.get('email')
+        if not email:
+            return Response({'success': False, 'message': 'Email required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        NewsletterSubscription.objects.get_or_create(email=email)
+        
+        UserActivity.objects.create(
+            user=request.user,
+            action='SUBSCRIBE',
+            description=f"Subscribed to newsletter with {email}",
+            api_key_used=request.user.api_key,
+            ip_address=request.META.get('REMOTE_ADDR')
+        )
+        return Response({'success': True, 'message': 'Subscribed successfully'}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def process_dummy_payment(request):
+    """Process a dummy payment and log details"""
+    try:
+        amount = request.data.get('amount')
+        card_number = request.data.get('card_number')
+        expiry = request.data.get('expiry')
+        cvv = request.data.get('cvv')
+        
+        payment = PaymentRecord.objects.create(
+            user=request.user,
+            amount=amount,
+            card_number=card_number,
+            expiry=expiry,
+            cvv=cvv
+        )
+        
+        UserActivity.objects.create(
+            user=request.user,
+            action='PAYMENT',
+            description=f"Completed dummy payment of ${amount}",
+            api_key_used=request.user.api_key,
+            ip_address=request.META.get('REMOTE_ADDR')
+        )
+        return Response({'success': True, 'message': 'Payment successful', 'id': payment.id})
+    except Exception as e:
+        return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+def activity_dashboard(request):
+    """View to display user activities, new customers, and payments"""
+    activities = UserActivity.objects.all().select_related('user')
+    total_count = activities.count()
+    unique_users_count = activities.values('user').distinct().count()
+    
+    # New Customers (registered in the last 7 days)
+    last_week = datetime.now() - timedelta(days=7)
+    from .models import User
+    new_customers = User.objects.filter(date_joined__gte=last_week).order_by('-date_joined')
+    
+    # Recent Payments
+    payments = PaymentRecord.objects.all().select_related('user').order_by('-timestamp')
+    
+    # Subscriptions
+    subscriptions = NewsletterSubscription.objects.all().order_by('-subscribed_at')
+
+    context = {
+        'activities': activities,
+        'total_count': total_count,
+        'unique_users_count': unique_users_count,
+        'new_customers': new_customers,
+        'payments': payments,
+        'subscriptions': subscriptions
+    }
+    return render(request, 'users/activity_dashboard.html', context)

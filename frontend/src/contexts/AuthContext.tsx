@@ -17,7 +17,7 @@ interface AuthContextType {
   portfolioBySector: { [key: string]: PortfolioItem[] };
   register: (data: RegisterData) => Promise<void>;
   login: (data: LoginData) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   addToPortfolio: (item: PortfolioItem) => void;
   removeFromPortfolio: (symbol: string) => void;
 }
@@ -81,8 +81,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(res.user);
   };
 
-  const logout = () => {
-    authService.logout();
+  const logout = async () => {
+    await authService.logout();
     setUser(null);
     setPortfolio([]);
     localStorage.removeItem('portfolio');
