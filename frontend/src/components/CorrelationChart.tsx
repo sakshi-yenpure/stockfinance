@@ -17,18 +17,19 @@ import styled from 'styled-components';
 import { CorrelationData } from '../services/metalsApi';
 
 const ChartContainer = styled(motion.div)`
-  background: rgba(255, 255, 255, 0.08);
+  background: ${props => props.theme.colors.cardBackground};
   backdrop-filter: blur(12px);
-  border-radius: 15px;
-  padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 2rem;
+  border-radius: ${props => props.theme.borderRadius.large};
+  padding: 2.5rem;
+  border: 1px solid ${props => props.theme.colors.border};
+  margin-bottom: 3rem;
 `;
 
 const ChartTitle = styled.h3`
-  color: #ffffff;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
+  color: ${props => props.theme.colors.textPrimary};
+  margin-bottom: 2rem;
+  font-size: 1.4rem;
+  font-weight: 700;
   text-align: center;
 `;
 

@@ -2,11 +2,13 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .models import User, Stock, PortfolioStock
 
+import secrets
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'phone', 'first_name', 'last_name', 'date_joined')
-        read_only_fields = ('id', 'date_joined')
+        fields = ('id', 'username', 'email', 'phone', 'first_name', 'last_name', 'api_key', 'date_joined')
+        read_only_fields = ('id', 'date_joined', 'api_key')
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -82,14 +84,21 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        validated_data.pop('password_confirm')
+        password_confirm = validated_data.pop('password_confirm', None)
         password = validated_data.pop('password')
         
         # Create user with hashed password
         user = User.objects.create_user(**validated_data)
         user.set_password(password)  # This hashes the password
-        user.save()
         
+        # Generate unique API key
+        while True:
+            new_api_key = f"plutus_{secrets.token_hex(16)}"
+            if not User.objects.filter(api_key=new_api_key).exists():
+                user.api_key = new_api_key
+                break
+        
+        user.save()
         return user
 
 class LoginSerializer(serializers.Serializer):

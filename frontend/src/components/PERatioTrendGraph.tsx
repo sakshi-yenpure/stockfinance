@@ -14,10 +14,11 @@ import styled from 'styled-components';
 const ChartContainer = styled.div`
   width: 100%;
   height: 400px;
-  margin-top: 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  padding: 1rem;
+  margin-top: 2rem;
+  background: ${props => props.theme.colors.cardBackground};
+  border-radius: ${props => props.theme.borderRadius.medium};
+  padding: 1.5rem;
+  border: 1px solid ${props => props.theme.colors.border};
 `;
 
 interface PERatioTrendGraphProps {

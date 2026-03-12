@@ -16,19 +16,21 @@ import styled from 'styled-components';
 import { HistoricalDataPoint } from '../services/metalsApi';
 
 const ChartContainer = styled(motion.div)`
-  background: rgba(255, 255, 255, 0.08);
+  background: ${props => props.theme.colors.cardBackground};
   backdrop-filter: blur(12px);
-  border-radius: 15px;
-  padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 2rem;
+  border-radius: ${props => props.theme.borderRadius.large};
+  padding: 2.5rem;
+  border: 1px solid ${props => props.theme.colors.border};
+  margin-bottom: 3rem;
 `;
 
 const ChartTitle = styled.h3`
-  color: #ffffff;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
+  color: ${props => props.theme.colors.textPrimary};
+  margin-bottom: 2rem;
+  font-size: 1.4rem;
+  font-weight: 700;
   text-align: center;
+  letter-spacing: -0.5px;
 `;
 
 const ChartHeader = styled.div`
@@ -78,18 +80,30 @@ const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
+      const data = payload[0].payload;
       return (
-        <div style={{
-          background: 'rgba(0, 0, 0, 0.8)',
-          padding: '10px',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          borderRadius: '5px',
-          color: '#fff'
+        <div style={{ 
+          background: 'rgba(5, 5, 5, 0.9)', 
+          padding: '1rem', 
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '12px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(10px)'
         }}>
-          <p>{formatTooltipDate(label)}</p>
-          <p style={{ color: color }}>
-            {title}: ${payload[0].value.toFixed(2)}
+          <p style={{ margin: '0 0 0.5rem 0', fontWeight: 700, color: '#fff' }}>{formatTooltipDate(label)}</p>
+          <p style={{ margin: '0 0 0.3rem 0', color: '#fff', fontSize: '0.9rem' }}>
+            Price: <span style={{ fontWeight: 700 }}>${data.price.toFixed(2)}</span>
           </p>
+          {data.ma20 && (
+            <p style={{ margin: '0 0 0.3rem 0', color: '#4facfe', fontSize: '0.9rem' }}>
+              MA20: <span style={{ fontWeight: 700 }}>${data.ma20.toFixed(2)}</span>
+            </p>
+          )}
+          {data.rsi && (
+            <p style={{ margin: '0', color: data.rsi > 70 ? '#ff1744' : data.rsi < 30 ? '#00e676' : '#a0a0a0', fontSize: '0.9rem' }}>
+              RSI: <span style={{ fontWeight: 700 }}>{data.rsi.toFixed(2)}</span>
+            </p>
+          )}
         </div>
       );
     }
@@ -152,16 +166,18 @@ const PriceTrendChart: React.FC<PriceTrendChartProps> = ({
             stroke={color}
             fillOpacity={1}
             fill={`url(#color${title})`}
-            strokeWidth={2}
+            strokeWidth={3}
+            name="Price"
           />
           
           <Line
             type="monotone"
-            dataKey="price"
-            stroke={color}
+            dataKey="ma20"
+            stroke="#4facfe"
             strokeWidth={2}
+            strokeDasharray="5 5"
             dot={false}
-            activeDot={{ r: 4, fill: color }}
+            name="20-Day MA"
           />
         </AreaChart>
       </ResponsiveContainer>

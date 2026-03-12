@@ -13,14 +13,19 @@ import styled from 'styled-components';
 
 const ChartContainer = styled.div`
   width: 100%;
-  height: 300px;
-  margin-top: 1rem;
+  height: 350px;
+  margin-top: 2rem;
+  background: ${props => props.theme.colors.cardBackground};
+  border-radius: ${props => props.theme.borderRadius.medium};
+  padding: 1.5rem;
+  border: 1px solid ${props => props.theme.colors.border};
 `;
 
 const ChartTitle = styled.h4`
-  margin: 1rem 0 0.5rem 0;
-  color: #ffffff;
-  font-size: 1rem;
+  margin: 0 0 1.5rem 0;
+  color: ${props => props.theme.colors.textPrimary};
+  font-size: 1.1rem;
+  font-weight: 700;
 `;
 
 interface KMeansClusteringGraphProps {

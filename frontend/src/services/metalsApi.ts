@@ -21,6 +21,8 @@ export interface HistoricalDataPoint {
   date: string;
   price: number;
   volume?: number;
+  ma20?: number; // 20-day Moving Average
+  rsi?: number; // Relative Strength Index
 }
 
 export interface CorrelationData {
@@ -107,6 +109,52 @@ export const fetchLiveMetalsPrices = async (): Promise<MetalsData> => {
     
     return mockData;
   }
+};
+
+// Calculate indicators for better analysis
+export const calculateIndicators = (data: HistoricalDataPoint[]): HistoricalDataPoint[] => {
+  // Create deep copies of the objects to avoid "Object is not extensible" errors
+  // This happens when the input objects are frozen (e.g., from static data)
+  const result = data.map(point => ({ ...point }));
+  
+  // 1. Calculate 20-day Simple Moving Average (SMA)
+  for (let i = 0; i < result.length; i++) {
+    if (i >= 19) {
+      const sum = result.slice(i - 19, i + 1).reduce((acc, point) => acc + point.price, 0);
+      result[i].ma20 = sum / 20;
+    }
+  }
+  
+  // 2. Calculate 14-day RSI (Relative Strength Index)
+  const rsiPeriod = 14;
+  if (result.length > rsiPeriod) {
+    let gains = 0;
+    let losses = 0;
+    
+    // Initial avg gain/loss
+    for (let i = 1; i <= rsiPeriod; i++) {
+      const diff = result[i].price - result[i - 1].price;
+      if (diff > 0) gains += diff;
+      else losses -= diff;
+    }
+    
+    let avgGain = gains / rsiPeriod;
+    let avgLoss = losses / rsiPeriod;
+    
+    for (let i = rsiPeriod + 1; i < result.length; i++) {
+      const diff = result[i].price - result[i - 1].price;
+      const gain = diff > 0 ? diff : 0;
+      const loss = diff < 0 ? -diff : 0;
+      
+      avgGain = (avgGain * (rsiPeriod - 1) + gain) / rsiPeriod;
+      avgLoss = (avgLoss * (rsiPeriod - 1) + loss) / rsiPeriod;
+      
+      const rs = avgLoss === 0 ? 100 : avgGain / avgLoss;
+      result[i].rsi = 100 - (100 / (1 + rs));
+    }
+  }
+  
+  return result;
 };
 
 // Calculate linear regression and correlation

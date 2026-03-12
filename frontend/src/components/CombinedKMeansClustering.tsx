@@ -14,20 +14,26 @@ import { PortfolioItem } from '../contexts/AuthContext';
 
 const ChartContainer = styled.div`
   width: 100%;
-  height: 400px;
-  margin-top: 1rem;
+  height: 450px;
+  margin-top: 2rem;
+  background: ${props => props.theme.colors.cardBackground};
+  border-radius: ${props => props.theme.borderRadius.large};
+  padding: 2rem;
+  border: 1px solid ${props => props.theme.colors.border};
 `;
 
 const ChartTitle = styled.h3`
-  margin: 1rem 0 0.5rem 0;
-  color: #ffffff;
-  font-size: 1.2rem;
+  margin: 0 0 2rem 0;
+  color: ${props => props.theme.colors.textPrimary};
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: center;
 `;
 
 const EmptyMessage = styled.div`
   text-align: center;
-  padding: 3rem;
-  color: #cccccc;
+  padding: 4rem;
+  color: ${props => props.theme.colors.textSecondary};
   font-size: 1.1rem;
 `;
 

@@ -9,34 +9,51 @@ const NewsContainer = styled.div`
 `;
 
 const PageTitle = styled(motion.h1)`
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-  text-align: center;
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  font-size: 3rem;
+  margin-bottom: 3rem;
+  text-align: left;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  background: ${props => props.theme.colors.accentPrimary};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 `;
 
 const FeaturedSection = styled(motion.div)`
-  background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(78, 205, 196, 0.2) 100%);
-  border-radius: 15px;
-  padding: 2rem;
-  margin-bottom: 3rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: ${props => props.theme.colors.cardBackground};
+  border-radius: ${props => props.theme.borderRadius.large};
+  padding: 3rem;
+  margin-bottom: 4rem;
+  border: 1px solid ${props => props.theme.colors.border};
   backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: ${props => props.theme.colors.accentPrimary};
+  }
 `;
 
 const FeaturedTitle = styled.h2`
-  color: #ff6b6b;
-  margin: 0 0 1rem 0;
-  font-size: 1.5rem;
+  color: ${props => props.theme.colors.textPrimary};
+  margin: 0 0 1.5rem 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.2;
 `;
 
 const FeaturedContent = styled.p`
-  color: #ffffff;
+  color: ${props => props.theme.colors.textSecondary};
   line-height: 1.8;
-  margin: 0 0 1rem 0;
+  margin: 0 0 2rem 0;
+  font-size: 1.1rem;
 `;
 
 const FeaturedMeta = styled.div`
@@ -50,35 +67,32 @@ const MetaItem = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #cccccc;
+  color: ${props => props.theme.colors.textSecondary};
   font-size: 0.9rem;
 `;
 
 const SearchContainer = styled.div`
   display: flex;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   flex-wrap: wrap;
 `;
 
 const SearchInput = styled.input`
   flex: 1;
-  min-width: 200px;
-  padding: 0.8rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  min-width: 300px;
+  padding: 1rem 1.5rem;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: ${props => props.theme.borderRadius.medium};
+  background: ${props => props.theme.colors.cardBackground};
+  color: ${props => props.theme.colors.textPrimary};
   font-size: 1rem;
-
-  &::placeholder {
-    color: #cccccc;
-  }
+  transition: ${props => props.theme.transitions.default};
 
   &:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: #4facfe;
+    box-shadow: ${props => props.theme.shadows.glow};
   }
 `;
 
@@ -105,27 +119,27 @@ const CategoryButton = styled.button<{ active: boolean }>`
   }
 `;
 
-const NewsGrid = styled.div`
+const NewsGrid = styled(motion.div)`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 2rem;
-  margin-top: 2rem;
 `;
 
 const NewsCard = styled(motion.div)`
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
-  padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
+  background: ${props => props.theme.colors.cardBackground};
+  border-radius: ${props => props.theme.borderRadius.medium};
+  padding: 2rem;
+  border: 1px solid ${props => props.theme.colors.border};
+  transition: ${props => props.theme.transitions.default};
+  cursor: pointer;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
   }
 `;
 
@@ -142,17 +156,18 @@ const NewsCategory = styled.span`
 `;
 
 const NewsTitle = styled.h3`
-  font-size: 1.2rem;
+  color: ${props => props.theme.colors.textPrimary};
+  font-size: 1.3rem;
   margin-bottom: 1rem;
-  color: #ffffff;
-  flex-grow: 1;
+  font-weight: 600;
+  line-height: 1.4;
 `;
 
-const NewsContent = styled.p`
-  color: #cccccc;
+const NewsSummary = styled.p`
+  color: ${props => props.theme.colors.textSecondary};
+  font-size: 0.95rem;
   line-height: 1.6;
-  margin-bottom: 1rem;
-  flex-grow: 1;
+  margin-bottom: 1.5rem;
 `;
 
 const NewsFooter = styled.div`
@@ -312,7 +327,7 @@ const News: React.FC = () => {
           >
             <NewsCategory>{news.category}</NewsCategory>
             <NewsTitle>{news.title}</NewsTitle>
-            <NewsContent>{news.content}</NewsContent>
+            <NewsSummary>{news.content}</NewsSummary>
             <NewsFooter>
               <div>
                 <NewsDate>{news.date}</NewsDate>

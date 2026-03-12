@@ -6,19 +6,22 @@ import { useAuth } from '../contexts/AuthContext';
 
 const SignupContainer = styled.div`
   max-width: 500px;
-  margin: 0 auto;
-  padding: 2rem;
-  min-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  margin: 4rem auto;
+  padding: 3rem;
+  background: ${props => props.theme.colors.cardBackground};
+  border-radius: ${props => props.theme.borderRadius.large};
+  border: 1px solid ${props => props.theme.colors.border};
+  backdrop-filter: blur(20px);
+  box-shadow: ${props => props.theme.shadows.card};
 `;
 
-const PageTitle = styled(motion.h1)`
+const Title = styled(motion.h1)`
   font-size: 2.5rem;
   margin-bottom: 2rem;
   text-align: center;
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  font-weight: 800;
+  letter-spacing: -1px;
+  background: ${props => props.theme.colors.accentPrimary};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -45,47 +48,61 @@ const Label = styled.label`
 
 const Input = styled.input`
   width: 100%;
-  padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.2rem;
+  background: ${props => props.theme.colors.background};
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: ${props => props.theme.borderRadius.medium};
+  color: ${props => props.theme.colors.textPrimary};
   font-size: 1rem;
-  transition: all 0.3s ease;
+  transition: ${props => props.theme.transitions.default};
 
   &:focus {
     outline: none;
-    border-color: #4ecdc4;
-    box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
-  }
-
-  &::placeholder {
-    color: #cccccc;
+    border-color: #4facfe;
+    box-shadow: ${props => props.theme.shadows.glow};
   }
 `;
 
-const SubmitButton = styled(motion.button)`
+const Button = styled(motion.button)`
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-  color: white;
+  background: ${props => props.theme.colors.accentPrimary};
+  color: #000;
   border: none;
-  border-radius: 8px;
+  border-radius: ${props => props.theme.borderRadius.medium};
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
   margin-top: 1rem;
+  transition: ${props => props.theme.transitions.default};
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+    box-shadow: ${props => props.theme.shadows.glow};
+    opacity: 0.9;
   }
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+  }
+`;
+
+const SwitchText = styled.p`
+  text-align: center;
+  margin-top: 2rem;
+  color: ${props => props.theme.colors.textSecondary};
+  font-size: 0.95rem;
+
+  span {
+    color: #4facfe;
+    cursor: pointer;
+    font-weight: 600;
+    
+    &:hover {
+      text-decoration: underline;
+    }
   }
 `;
 
@@ -110,6 +127,7 @@ const ErrorMessage = styled(motion.div)`
 `;
 
 const Signup: React.FC = () => {
+  const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -117,7 +135,7 @@ const Signup: React.FC = () => {
     password: ''
   });
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, login, user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -136,77 +154,97 @@ const Signup: React.FC = () => {
     setError('');
 
     try {
-      // call backend register endpoint via auth context
-      await register({
-        username: formData.email,          // use email as username
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password,
-        password_confirm: formData.password,
-        first_name: formData.name
-      });
+      if (isLogin) {
+        await login({
+          username: formData.email,
+          password: formData.password
+        });
+      } else {
+        await register({
+          username: formData.email,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+          password_confirm: formData.password,
+          first_name: formData.name
+        });
+      }
 
       setSuccess(true);
-      // navigate to home after a short delay so user sees success message
       setTimeout(() => {
         navigate('/');
-      }, 1000);
+      }, 1500);
     } catch (err: any) {
-      // backend may return detailed errors
       if (err && err.errors) {
-        // pick first error message, ensure string
         const messages = Object.values(err.errors).flat() as any[];
         const first = messages.length > 0 ? messages[0] : '';
-        setError(typeof first === 'string' ? first : String(first) || 'Registration failed');
+        setError(typeof first === 'string' ? first : String(first) || 'Authentication failed');
       } else if (err && err.message) {
         setError(String(err.message));
       } else {
-        setError('Registration failed');
+        setError(isLogin ? 'Login failed' : 'Registration failed');
       }
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (user && success) {
+    return (
+      <SignupContainer>
+        <Title>Welcome Back, {user.first_name || user.username}!</Title>
+        <SuccessMessage>
+          Authentication Successful! 🚀<br/>
+          Your API Key: <code>{user.api_key}</code>
+        </SuccessMessage>
+        <p style={{ textAlign: 'center', marginTop: '1rem', color: '#888' }}>
+          Redirecting to home...
+        </p>
+      </SignupContainer>
+    );
+  }
+
   return (
     <SignupContainer>
-      <PageTitle
+      <Title
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        🚀 Create Account
-      </PageTitle>
+        {isLogin ? '🔐 Welcome Back' : '🚀 Create Account'}
+      </Title>
 
       <SignupForm
-        initial={{ opacity: 0, scale: 0.9 }}
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
         onSubmit={handleSubmit}
       >
-        <FormGroup>
-          <Label>👤 Name</Label>
-          <Input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            placeholder="Enter your full name"
-            required
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Label>📞 Phone</Label>
-          <Input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleInputChange}
-            placeholder="Enter your phone number"
-            required
-          />
-        </FormGroup>
+        {!isLogin && (
+          <>
+            <FormGroup>
+              <Label>👤 Name</Label>
+              <Input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="Full Name"
+                required
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label>📞 Phone</Label>
+              <Input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                placeholder="+1234567890"
+                required
+              />
+            </FormGroup>
+          </>
+        )}
 
         <FormGroup>
           <Label>📧 Email</Label>
@@ -215,7 +253,7 @@ const Signup: React.FC = () => {
             name="email"
             value={formData.email}
             onChange={handleInputChange}
-            placeholder="Enter your email address"
+            placeholder="Email Address"
             required
           />
         </FormGroup>
@@ -227,47 +265,29 @@ const Signup: React.FC = () => {
             name="password"
             value={formData.password}
             onChange={handleInputChange}
-            placeholder="Create a strong password"
+            placeholder="Password"
             required
           />
         </FormGroup>
 
-        <SubmitButton
+        <Button
           type="submit"
           disabled={isSubmitting}
-          whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-          whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
-          {isSubmitting ? 'Creating Account...' : '🎯 Sign Up Now'}
-        </SubmitButton>
+          {isSubmitting ? 'Processing...' : (isLogin ? 'Login' : 'Sign Up')}
+        </Button>
 
-        {success && (
-          <SuccessMessage
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            ✅ Account created successfully! Welcome to YOUR FINANCE!
-          </SuccessMessage>
-        )}
-
-        {error && (
-          <ErrorMessage
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            ❌ {error}
-          </ErrorMessage>
-        )}
+        {error && <ErrorMessage>{error}</ErrorMessage>}
       </SignupForm>
 
-      <motion.p
-        style={{ textAlign: 'center', color: '#cccccc', marginTop: '2rem' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-      >
-        Already have an account? <a href="/" style={{ color: '#4ecdc4' }}>Sign in here</a>
-      </motion.p>
+      <SwitchText>
+        {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+        <span onClick={() => { setIsLogin(!isLogin); setError(''); }}>
+          {isLogin ? 'Sign up here' : 'Login here'}
+        </span>
+      </SwitchText>
     </SignupContainer>
   );
 };

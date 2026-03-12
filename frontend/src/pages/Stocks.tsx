@@ -11,85 +11,74 @@ const StocksContainer = styled.div`
 `;
 
 const PageTitle = styled(motion.h1)`
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-  text-align: center;
-  background: linear-gradient(45deg, #4ecdc4, #ff6b6b);
+  font-size: 3rem;
+  margin-bottom: 3rem;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  background: ${props => props.theme.colors.accentPrimary};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 `;
 
-const SectorGrid = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-top: 2rem;
+const SectorsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
 `;
 
 const SectorCard = styled(motion.div)`
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-  backdrop-filter: blur(12px);
-  border-radius: 20px;
-  padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: ${props => props.theme.colors.cardBackground};
+  border-radius: ${props => props.theme.borderRadius.large};
+  padding: 2.5rem;
+  border: 1px solid ${props => props.theme.colors.border};
+  text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: ${props => props.theme.transitions.default};
   position: relative;
   overflow: hidden;
-  
+
+  &:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: ${props => props.theme.shadows.glow};
+  }
+
   &::before {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
+    left: 0;
     width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transition: left 0.5s ease;
+    height: 4px;
+    background: ${props => props.theme.colors.accentPrimary};
+    opacity: 0;
+    transition: ${props => props.theme.transitions.default};
   }
-  
-  &:hover::before {
-    left: 100%;
-  }
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-`;
 
-const SectorHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  &:hover::before {
+    opacity: 1;
+  }
 `;
 
 const SectorIcon = styled.div`
-  font-size: 2rem;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
 `;
 
 const SectorName = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #ffffff;
-  margin: 0;
+  font-size: 1.4rem;
+  color: ${props => props.theme.colors.textPrimary};
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  text-transform: capitalize;
 `;
 
 const SectorDescription = styled.p`
-  color: #cccccc;
-  font-size: 1rem;
-  line-height: 1.6;
-  margin: 0;
+  color: ${props => props.theme.colors.textSecondary};
+  font-size: 0.95rem;
+  line-height: 1.5;
 `;
 
 const SectorStats = styled.div`
@@ -236,7 +225,7 @@ const Stocks: React.FC = () => {
         📈 Market Sectors
       </PageTitle>
 
-      <SectorGrid>
+      <SectorsGrid>
         {sectors.map((sector, index) => (
           <SectorCard
             key={sector.id}
@@ -246,10 +235,8 @@ const Stocks: React.FC = () => {
             whileHover={{ scale: 1.02 }}
             onClick={() => handleSectorClick(sector.name)}
           >
-            <SectorHeader>
-              <SectorIcon>{sector.icon}</SectorIcon>
-              <SectorName>{sector.name}</SectorName>
-            </SectorHeader>
+            <SectorIcon>{sector.icon}</SectorIcon>
+            <SectorName>{sector.name}</SectorName>
             
             <SectorDescription>{sector.description}</SectorDescription>
             
@@ -271,7 +258,7 @@ const Stocks: React.FC = () => {
             </SectorStats>
           </SectorCard>
         ))}
-      </SectorGrid>
+      </SectorsGrid>
     </StocksContainer>
   );
 };

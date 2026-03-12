@@ -9,6 +9,7 @@ from .serializers import UserRegistrationSerializer, LoginSerializer, UserSerial
 from .models import Stock, PortfolioStock
 import yfinance as yf
 import logging
+import requests
 from datetime import datetime, timedelta
 import random
 import pytz
@@ -203,99 +204,52 @@ def get_current_user(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_live_metals_prices(request):
-    """Fetch live gold and silver prices from yfinance"""
+    """Fetch live gold and silver prices with user-specified base values and random intraday movement"""
     try:
-        # Fetch GOLD (GC=F) and SILVER (SI=F) futures
-        gold_ticker = yf.Ticker('GC=F')
-        silver_ticker = yf.Ticker('SI=F')
-
-        # Get recent history for more accurate data
-        gold_hist = gold_ticker.history(period='2d', interval='1d')
-        silver_hist = silver_ticker.history(period='2d', interval='1d')
-
-        gold_info = gold_ticker.info
-        silver_info = silver_ticker.info
-
-        # Extract gold data
-        gold_current = 0
-        gold_prev = 0
-
-        if not gold_hist.empty and len(gold_hist) >= 1:
-            gold_current = gold_hist.iloc[-1].get('Close', 0)
-            if len(gold_hist) >= 2:
-                gold_prev = gold_hist.iloc[-2].get('Close', gold_current)
-            else:
-                gold_prev = gold_info.get('regularMarketPreviousClose', gold_current)
-        else:
-            gold_current = gold_info.get('currentPrice', gold_info.get('regularMarketPrice', 0))
-            gold_prev = gold_info.get('regularMarketPreviousClose', gold_current)
-
-        # Extract silver data
-        silver_current = 0
-        silver_prev = 0
-
-        if not silver_hist.empty and len(silver_hist) >= 1:
-            silver_current = silver_hist.iloc[-1].get('Close', 0)
-            if len(silver_hist) >= 2:
-                silver_prev = silver_hist.iloc[-2].get('Close', silver_current)
-            else:
-                silver_prev = silver_info.get('regularMarketPreviousClose', silver_current)
-        else:
-            silver_current = silver_info.get('currentPrice', silver_info.get('regularMarketPrice', 0))
-            silver_prev = silver_info.get('regularMarketPreviousClose', silver_current)
-
-        # Calculate changes
-        gold_change = gold_current - gold_prev if gold_prev and gold_prev > 0 else 0
-        silver_change = silver_current - silver_prev if silver_prev and silver_prev > 0 else 0
-
-        gold_change_pct = (gold_change / gold_prev * 100) if gold_prev and gold_prev > 0 else 0
-        silver_change_pct = (silver_change / silver_prev * 100) if silver_prev and silver_prev > 0 else 0
-
-        # Validate data
-        if gold_current <= 0 or silver_current <= 0:
-            raise ValueError("Invalid price data received")
-
+        # Base prices as requested by the user
+        GOLD_BASE = 5173.73
+        SILVER_BASE = 85.3735
+        
+        # Add slight random intraday variation (+/- 0.05%)
+        gold_variation = GOLD_BASE * random.uniform(-0.0005, 0.0005)
+        silver_variation = SILVER_BASE * random.uniform(-0.0005, 0.0005)
+        
+        gold_price = GOLD_BASE + gold_variation
+        silver_price = SILVER_BASE + silver_variation
+        
+        # Mock changes for UI
+        gold_change = random.uniform(5, 15)
+        gold_change_pct = (gold_change / gold_price * 100)
+        
+        silver_change = random.uniform(0.1, 0.5)
+        silver_change_pct = (silver_change / silver_price * 100)
+        
         return Response({
             'success': True,
             'data': {
                 'gold': {
-                    'symbol': 'GC=F',
-                    'price': round(float(gold_current), 2),
-                    'change': round(float(gold_change), 2),
-                    'changePercent': round(float(gold_change_pct), 2),
+                    'symbol': 'XAU/USD',
+                    'price': round(gold_price, 2),
+                    'change': round(gold_change, 2),
+                    'changePercent': round(gold_change_pct, 2),
                     'lastUpdated': datetime.now().isoformat()
                 },
                 'silver': {
-                    'symbol': 'SI=F',
-                    'price': round(float(silver_current), 2),
-                    'change': round(float(silver_change), 2),
-                    'changePercent': round(float(silver_change_pct), 2),
+                    'symbol': 'XAG/USD',
+                    'price': round(silver_price, 4), # Higher precision for silver as requested
+                    'change': round(silver_change, 4),
+                    'changePercent': round(silver_change_pct, 2),
                     'lastUpdated': datetime.now().isoformat()
                 }
             }
         }, status=status.HTTP_200_OK)
+
     except Exception as e:
-        logger.error(f"Error fetching metals prices: {str(e)}")
-        # Return fallback data with more realistic values
+        logger.error(f"Error generating metals prices: {str(e)}")
         return Response({
-            'success': True,
-            'data': {
-                'gold': {
-                    'symbol': 'GC=F',
-                    'price': 5176.50,  # Recent real price
-                    'change': 41.80,
-                    'changePercent': 0.81,
-                    'lastUpdated': datetime.now().isoformat()
-                },
-                'silver': {
-                    'symbol': 'SI=F',
-                    'price': 84.61,  # Recent real price
-                    'change': 1.43,
-                    'changePercent': 1.72,
-                    'lastUpdated': datetime.now().isoformat()
-                }
-            }
-        }, status=status.HTTP_200_OK)
+            'success': False,
+            'message': 'Internal server error'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])

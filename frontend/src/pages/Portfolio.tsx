@@ -14,10 +14,11 @@ const PortfolioContainer = styled.div`
 `;
 
 const PageTitle = styled(motion.h1)`
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-  text-align: center;
-  background: linear-gradient(45deg, #00b894, #00cec9);
+  font-size: 3rem;
+  margin-bottom: 3rem;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  background: ${props => props.theme.colors.accentPrimary};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -83,10 +84,25 @@ const PortfolioName = styled.div`
   flex-direction: column;
 `;
 
+const StockCard = styled(motion.div)`
+  background: ${props => props.theme.colors.cardBackground};
+  border-radius: ${props => props.theme.borderRadius.medium};
+  padding: 1.5rem;
+  border: 1px solid ${props => props.theme.colors.border};
+  transition: ${props => props.theme.transitions.default};
+
+  &:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+  }
+`;
+
 const StockName = styled.h3`
-  font-size: 1.3rem;
-  color: #ffffff;
-  margin: 0;
+  font-size: 1.2rem;
+  color: ${props => props.theme.colors.textPrimary};
+  margin-bottom: 0.3rem;
+  font-weight: 600;
 `;
 
 const StockSymbol = styled.p`
@@ -112,10 +128,11 @@ const RemoveButton = styled.button`
 `;
 
 const PortfolioValue = styled.div`
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #00b894;
+  font-size: 3rem;
+  font-weight: 800;
+  color: ${props => props.theme.colors.success};
   margin-bottom: 0.5rem;
+  letter-spacing: -1px;
 `;
 
 const PortfolioChange = styled.div<{ positive: boolean }>`
@@ -162,18 +179,12 @@ const EmptyText = styled.p`
 `;
 
 const AnalyticsCard = styled(motion.div)`
-  background: rgba(255, 255, 255, 0.1);
+  background: ${props => props.theme.colors.cardBackground};
+  border-radius: ${props => props.theme.borderRadius.large};
+  padding: 3rem;
+  border: 1px solid ${props => props.theme.colors.border};
+  margin-bottom: 4rem;
   backdrop-filter: blur(10px);
-  border-radius: 15px;
-  padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 3rem;
-  transition: all 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
 `;
 
 const SectorSection = styled(motion.div)`
@@ -181,12 +192,20 @@ const SectorSection = styled(motion.div)`
 `;
 
 const SectorTitle = styled.h2`
-  font-size: 1.8rem;
-  color: #4ecdc4;
-  margin-bottom: 1.5rem;
-  text-transform: capitalize;
-  border-bottom: 2px solid rgba(78, 205, 196, 0.3);
-  padding-bottom: 0.5rem;
+  font-size: 2rem;
+  color: ${props => props.theme.colors.textPrimary};
+  margin-bottom: 2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: ${props => props.theme.colors.border};
+  }
 `;
 
 const SectorStocksGrid = styled.div`
@@ -203,22 +222,24 @@ const SectorsContainer = styled.div`
 `;
 
 const SectorCard = styled(motion.div)`
-  background: linear-gradient(135deg, rgba(78, 205, 196, 0.1), rgba(255, 107, 107, 0.1));
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
-  padding: 1.5rem;
-  border: 1px solid rgba(78, 205, 196, 0.3);
-  transition: all 0.3s ease;
-  cursor: pointer;
+  background: ${props => props.theme.colors.cardBackground};
+  border-radius: ${props => props.theme.borderRadius.large};
+  padding: 2.5rem;
+  border: 1px solid ${props => props.theme.colors.border};
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+  transition: ${props => props.theme.transitions.default};
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 0 15px 40px rgba(78, 205, 196, 0.2);
-    border-color: rgba(78, 205, 196, 0.6);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: ${props => props.theme.shadows.glow};
   }
 `;
 
@@ -228,8 +249,8 @@ const SectorIcon = styled.div`
 `;
 
 const SectorCardTitle = styled.h3`
-  font-size: 1.3rem;
-  color: #4ecdc4;
+  font-size: 1.5rem;
+  color: ${props => props.theme.colors.textPrimary};
   margin: 0 0 1rem 0;
   text-transform: capitalize;
   font-weight: 700;
@@ -263,19 +284,20 @@ const SectorStatValue = styled.div`
 
 const SectorCardButton = styled.button`
   width: 100%;
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  background: ${props => props.theme.colors.accentPrimary};
   border: none;
-  color: white;
-  padding: 0.7rem;
-  border-radius: 8px;
+  color: #000;
+  padding: 0.8rem;
+  border-radius: ${props => props.theme.borderRadius.medium};
   cursor: pointer;
-  font-weight: 600;
-  margin-top: 1rem;
-  transition: all 0.3s ease;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  transition: ${props => props.theme.transitions.default};
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: ${props => props.theme.shadows.glow};
+    opacity: 0.9;
   }
 `;
 

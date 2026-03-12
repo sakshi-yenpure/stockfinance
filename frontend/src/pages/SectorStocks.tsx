@@ -22,39 +22,41 @@ const PageHeader = styled(motion.div)`
 `;
 
 const SectorTitle = styled(motion.h1)`
-  font-size: 2.5rem;
-  background: linear-gradient(45deg, #4ecdc4, #ff6b6b);
+  font-size: 3rem;
+  background: ${props => props.theme.colors.accentPrimary};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin: 0;
+  font-weight: 800;
+  letter-spacing: -1.5px;
 `;
 
 const BackButton = styled(motion.button)`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  color: white;
+  background: transparent;
+  border: 1px solid ${props => props.theme.colors.border};
+  color: ${props => props.theme.colors.textPrimary};
   padding: 0.8rem 1.5rem;
-  border-radius: 10px;
+  border-radius: ${props => props.theme.borderRadius.medium};
   cursor: pointer;
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition: ${props => props.theme.transitions.default};
   
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.3);
   }
 `;
 
 const RefreshButton = styled(motion.button)<{ isLoading?: boolean }>`
-  background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+  background: ${props => props.theme.colors.accentPrimary};
   border: none;
-  color: white;
+  color: #000;
   padding: 0.8rem 1.5rem;
-  border-radius: 10px;
+  border-radius: ${props => props.theme.borderRadius.medium};
   cursor: ${props => props.isLoading ? 'not-allowed' : 'pointer'};
-  font-weight: 600;
-  transition: all 0.3s ease;
+  font-weight: 700;
+  transition: ${props => props.theme.transitions.default};
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -62,62 +64,63 @@ const RefreshButton = styled(motion.button)<{ isLoading?: boolean }>`
   
   &:hover {
     transform: ${props => props.isLoading ? 'none' : 'translateY(-2px)'};
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: ${props => props.theme.shadows.glow};
   }
 `;
 
 const SearchContainer = styled(motion.div)`
-  background: rgba(255, 255, 255, 0.08);
+  background: ${props => props.theme.colors.cardBackground};
   backdrop-filter: blur(12px);
-  border-radius: 15px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: ${props => props.theme.borderRadius.large};
+  padding: 2rem;
+  margin-bottom: 3rem;
+  border: 1px solid ${props => props.theme.colors.border};
 `;
 
 const SearchInput = styled.input`
   width: 100%;
-  padding: 1rem;
-  border: none;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  padding: 1.2rem;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: ${props => props.theme.borderRadius.medium};
+  background: ${props => props.theme.colors.background};
+  color: ${props => props.theme.colors.textPrimary};
   font-size: 1rem;
-  
-  &::placeholder {
-    color: #cccccc;
-  }
+  transition: ${props => props.theme.transitions.default};
   
   &:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.15);
+    border-color: #4facfe;
+    box-shadow: ${props => props.theme.shadows.glow};
   }
 `;
 
 const ResultsContainer = styled(motion.div)`
-  background: rgba(255, 255, 255, 0.08);
+  background: ${props => props.theme.colors.cardBackground};
   backdrop-filter: blur(12px);
-  border-radius: 15px;
-  padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: ${props => props.theme.borderRadius.large};
+  padding: 2rem;
+  border: 1px solid ${props => props.theme.colors.border};
   overflow-x: auto;
 `;
 
 const StockTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  color: white;
+  color: ${props => props.theme.colors.textPrimary};
   
   th, td {
-    padding: 1rem;
+    padding: 1.2rem;
     text-align: left;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid ${props => props.theme.colors.border};
   }
   
   th {
-    font-weight: 600;
-    color: #4ecdc4;
-    background: rgba(255, 255, 255, 0.05);
+    font-weight: 700;
+    color: ${props => props.theme.colors.textSecondary};
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    background: rgba(255, 255, 255, 0.02);
   }
   
   tr:hover {

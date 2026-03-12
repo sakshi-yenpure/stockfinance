@@ -10,81 +10,81 @@ const ChatbotContainer = styled.div`
 `;
 
 const ChatbotToggle = styled(motion.button)`
-  width: 60px;
-  height: 60px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  background: ${props => props.theme.colors.accentPrimary};
   border: none;
-  color: white;
-  font-size: 1.5rem;
+  color: #000;
+  font-size: 1.4rem;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: ${props => props.theme.shadows.glow};
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: ${props => props.theme.transitions.default};
 
   &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1) rotate(5deg);
   }
 `;
 
 const ChatWindow = styled(motion.div)`
   position: absolute;
-  bottom: 80px;
+  bottom: 70px;
   right: 0;
-  width: 350px;
-  height: 500px;
-  background: linear-gradient(135deg, rgba(30, 30, 46, 0.98) 0%, rgba(45, 45, 65, 0.98) 100%);
-  border-radius: 15px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  width: 380px;
+  height: 550px;
+  background: rgba(13, 13, 13, 0.95);
+  border-radius: ${props => props.theme.borderRadius.large};
+  box-shadow: ${props => props.theme.shadows.card};
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  border: 1px solid ${props => props.theme.colors.border};
+  backdrop-filter: blur(25px);
+  overflow: hidden;
 `;
 
 const ChatHeader = styled.div`
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
-  padding: 1.5rem;
-  border-radius: 15px 15px 0 0;
-  color: white;
+  background: ${props => props.theme.colors.secondaryBackground};
+  padding: 1.2rem 1.5rem;
+  color: ${props => props.theme.colors.textPrimary};
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  justify-content: space-between;
+  border-bottom: 1px solid ${props => props.theme.colors.border};
 `;
 
 const ChatTitle = styled.h3`
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: ${props => props.theme.colors.accentPrimary};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 `;
 
 const MessageList = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding: 1rem;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 1rem;
 
   &::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
+    background: transparent;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(78, 205, 196, 0.3);
+    background: ${props => props.theme.colors.border};
     border-radius: 10px;
-
-    &:hover {
-      background: rgba(78, 205, 196, 0.5);
-    }
   }
 `;
 
@@ -96,63 +96,62 @@ const Message = styled(motion.div)<{ isBot: boolean }>`
 
 const MessageBubble = styled.div<{ isBot: boolean }>`
   max-width: 85%;
-  padding: 0.8rem 1rem;
-  border-radius: 12px;
-  background: ${props => props.isBot 
-    ? 'rgba(78, 205, 196, 0.2)' 
-    : 'rgba(78, 205, 196, 0.8)'};
-  color: ${props => props.isBot ? '#ffffff' : '#ffffff'};
-  border: 1px solid ${props => props.isBot 
-    ? 'rgba(78, 205, 196, 0.3)' 
-    : 'rgba(78, 205, 196, 0.6)'};
-  font-size: 0.9rem;
-  line-height: 1.4;
-  word-wrap: break-word;
+  padding: 0.8rem 1.2rem;
+  border-radius: ${props => props.theme.borderRadius.medium};
+  background: ${props => props.isBot ? props.theme.colors.secondaryBackground : props.theme.colors.accentPrimary};
+  color: ${props => props.isBot ? props.theme.colors.textPrimary : '#000'};
+  font-size: 0.95rem;
+  line-height: 1.5;
+  border: 1px solid ${props => props.isBot ? props.theme.colors.border : 'transparent'};
+  box-shadow: ${props => !props.isBot ? props.theme.shadows.glow : 'none'};
 `;
 
-const InputContainer = styled.div`
+const InputContainer = styled.form`
+  padding: 1.2rem;
+  background: ${props => props.theme.colors.secondaryBackground};
   display: flex;
-  gap: 0.5rem;
-  padding: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 0.8rem;
+  border-top: 1px solid ${props => props.theme.colors.border};
 `;
 
-const ChatInput = styled.input`
+const Input = styled.input`
   flex: 1;
-  padding: 0.7rem;
-  border: 1px solid rgba(78, 205, 196, 0.3);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
+  background: ${props => props.theme.colors.background};
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: ${props => props.theme.borderRadius.medium};
+  padding: 0.7rem 1rem;
+  color: ${props => props.theme.colors.textPrimary};
   font-size: 0.9rem;
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-  }
+  transition: ${props => props.theme.transitions.default};
 
   &:focus {
     outline: none;
-    border-color: rgba(78, 205, 196, 0.6);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: #4facfe;
+    background: rgba(255, 255, 255, 0.05);
   }
 `;
 
 const SendButton = styled.button`
-  padding: 0.7rem 1rem;
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  background: ${props => props.theme.colors.accentPrimary};
   border: none;
-  color: white;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #000;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: ${props => props.theme.transitions.default};
 
   &:hover {
     transform: scale(1.05);
+    box-shadow: ${props => props.theme.shadows.glow};
   }
 
-  &:active {
-    transform: scale(0.95);
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
@@ -165,53 +164,100 @@ interface ChatMessage {
 
 const FAQs = [
   {
-    keywords: ['hello', 'hi', 'hey', 'start'],
-    response: 'Hello! 👋 I\'m YourFinance Assistant. I can help you learn how to use our app. Try asking me about:\n• How to add stocks to portfolio\n• Understanding the PE ratio graph\n• What is K-means clustering\n• News page features\n• Gold/Silver tracking'
+    keywords: ['hello', 'hi', 'hey', 'start', 'plutus'],
+    response: 'Hello! 👋 I\'m Plutus Assistant. I can help you manage your wealth and understand market trends. Try asking me about:\n• Portfolio management\n• Market sectors\n• Analytics and indicators (RSI, MA20)\n• Precious metals (Gold/Silver)\n• Financial news and predictions'
   },
   {
-    keywords: ['portfolio', 'add stock', 'how to add'],
-    response: '📈 How to add stocks to your portfolio:\n1. Go to "📈 Market Sectors"\n2. Click on any sector (Automobile, IT, etc.)\n3. Find the stock you want\n4. Click the "Add" button\n5. Go to "💼 My Portfolio" to see it!\n\nYou can remove stocks by clicking ✕'
+    keywords: ['portfolio', 'add stock', 'how to add', 'my stocks'],
+    response: '💼 Portfolio Management:\n1. Browse "📈 Stocks" in the sidebar.\n2. Select a sector (e.g., IT, Banking).\n3. Click "Add" on any stock card.\n4. Access your "💼 Portfolio" to view totals and P/E trends.\n\n*Note: You must be logged in to save your portfolio.*'
   },
   {
-    keywords: ['pe ratio', 'graph', 'chart'],
-    response: '📊 PE Ratio Graph:\n• Shows how a stock\'s Price-to-Earnings ratio changes over 12 months\n• Located in the portfolio page when you click a stock\n• Helps you understand stock valuation trends\n• Green line shows the PE ratio progression'
+    keywords: ['pe ratio', 'p/e', 'valuation', 'expensive'],
+    response: '📊 P/E Ratio (Price-to-Earnings):\n• It shows how much you pay for $1 of a company\'s profit.\n• High P/E: Investors expect high growth (or the stock is overvalued).\n• Low P/E: The stock might be undervalued or have low growth potential.\n• We track your portfolio\'s P/E over time to monitor valuation trends.'
   },
   {
-    keywords: ['k-means', 'clustering', 'cluster'],
-    response: '🎯 K-Means Clustering:\n• Groups stocks based on price and performance\n• 🟢 Green = High performers (change > 5%)\n• 🟡 Yellow = Stable (change -2% to 5%)\n• 🔴 Red = Declining (change < -2%)\n\nView individual clustering by clicking a stock, or see combined portfolio clustering at the top!'
+    keywords: ['rsi', 'relative strength', 'overbought', 'oversold'],
+    response: '📉 RSI (Relative Strength Index):\n• RSI < 30: The asset is "Oversold" (potential buying opportunity).\n• RSI > 70: The asset is "Overbought" (potential selling signal).\n• We integrate RSI into our metals and stock charts to help you spot entry/exit points.'
   },
   {
-    keywords: ['news', 'financial news', 'market news'],
-    response: '📰 News Page Features:\n• Featured Story: Latest important financial news\n• Search: Find news by keyword\n• Categories: Filter by Markets, Commodities, Economy, Analysis, Education\n• News Source: See which publication reported it\n• Read More: Get to the full article'
+    keywords: ['ma20', 'moving average', 'trend line', 'sma'],
+    response: '📈 MA20 (20-Day Moving Average):\n• It calculates the average price over the last 20 days.\n• Price > MA20: Strong bullish momentum.\n• Price < MA20: Potential bearish trend.\n• We use this on our Gold/Silver graphs to smooth out daily volatility.'
   },
   {
-    keywords: ['gold', 'silver', 'metals', 'precious'],
-    response: '💰 Gold & Silver Page:\n• Real-time prices for gold and silver\n• Live price updates every 30 seconds\n• Price charts showing 12-month trends\n• Correlation analysis between gold and silver\n• Current and historical data visualization'
+    keywords: ['gold', 'silver', 'metals', 'rate', 'price'],
+    response: '💰 Precious Metals:\n• Gold (XAU): Current spot price around $5,173.73/oz.\n• Silver (XAG): Current spot price around $85.3735/oz.\n• Gold is a "safe haven" during inflation, while Silver has high industrial use.'
   },
   {
-    keywords: ['stocks', 'market', 'sector', 'stock page'],
-    response: '📈 Stocks & Sectors:\n1. Choose a sector from "Market Sectors"\n2. Browse stocks in that sector\n3. See current prices, changes, and P/E ratios\n4. View market opportunities (Buy/Hold/Sell)\n5. Click "Add" to add to your portfolio'
+    keywords: ['prediction', 'future', 'forecast', 'march'],
+    response: '🔮 Market Predictions:\n• We use statistical models for 15-day and monthly (March) forecasts.\n• "Bullish": Expecting prices to rise (🚀).\n• "Bearish": Expecting prices to fall (📉).\n• Check our daily March prediction table on the Gold/Silver page!'
   },
   {
-    keywords: ['help', 'how', 'what', 'guide', 'feature'],
-    response: 'I can help you with:\n• 💼 Portfolio management\n• 📈 Stock sectors and browsing\n• 📊 Charts and analytics\n• 🎯 Clustering analysis\n• 💰 Precious metals tracking\n• 📰 Financial news\n\nWhat would you like to know more about?'
+    keywords: ['api key', 'secret', 'developer', 'plutus_'],
+    response: '🔑 API Keys:\n• Every Plutus user gets a unique API key (e.g., plutus_abc...).\n• You can find yours in the Profile or after logging in.\n• Use this key to access our backend financial endpoints programmatically.'
   },
   {
-    keywords: ['remove', 'delete', 'remove stock'],
-    response: '🗑️ How to remove a stock:\n1. Go to "💼 My Portfolio"\n2. Find the stock you want to remove\n3. Click the ✕ button on the card\n4. The stock will be removed immediately\n\nYou can also remove from inside the detailed view!'
+    keywords: ['bullish', 'bearish', 'market trend', 'up', 'down'],
+    response: '🐂 Bullish vs 🐻 Bearish:\n• Bullish: Prices are going up. Think of a bull tossing prices up with its horns!\n• Bearish: Prices are going down. Think of a bear swiping prices down with its paws.'
   },
   {
-    keywords: ['search', 'find', 'navigate'],
-    response: '🔍 Navigation Tips:\n• Use the Navbar to switch between pages\n• Login to see your portfolio and personalized content\n• Search stocks in each sector\n• Filter news by category\n• All data updates in real-time!'
+    keywords: ['login', 'signup', 'account', 'register'],
+    response: '🔐 Account Access:\n• Use the "Sign Up" toggle to switch between Login and Register.\n• Creating an account lets you save your portfolio and view your API key.'
+  },
+  {
+    keywords: ['help', 'options', 'what can you do', 'features'],
+    response: '🛠️ Plutus Features:\n• Live Market Tracking (Stocks & Metals)\n• Advanced Analytics (RSI, MA20, Correlation)\n• AI-Driven Price Predictions\n• Real-Time Financial News\n• Secure Portfolio Management'
+  },
+  {
+    keywords: ['market cap', 'capitalization', 'large cap', 'mid cap'],
+    response: '🏢 Market Capitalization:\n• The total value of all a company\'s shares.\n• Large Cap: Stable, established companies (e.g., Apple, Reliance).\n• Mid/Small Cap: Higher growth potential but higher risk.\n• We display market caps to help you understand company size.'
+  },
+  {
+    keywords: ['dividend', 'yield', 'payout'],
+    response: '💰 Dividends:\n• A portion of company profits paid out to shareholders.\n• Dividend Yield: The annual dividend payment divided by the stock price.\n• High-yield stocks are often favored for steady income.'
+  },
+  {
+    keywords: ['volatility', 'risk', 'beta', 'swing'],
+    response: '📉 Volatility:\n• How much an asset\'s price swings up or down.\n• High Volatility: Fast price changes (higher risk/reward).\n• Low Volatility: Steady price movements (lower risk).\n• Our K-Means clustering helps you identify volatile stocks in your portfolio.'
+  },
+  {
+    keywords: ['index', 's&p 500', 'nifty', 'market benchmark'],
+    response: '📈 Market Indices:\n• An Index tracks a group of stocks to represent the overall market (e.g., S&P 500, Nifty 50).\n• It acts as a benchmark to compare your portfolio\'s performance.'
   }
 ];
 
+const TypingIndicator = styled.div`
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  background: ${props => props.theme.colors.secondaryBackground};
+  border-radius: ${props => props.theme.borderRadius.medium};
+  width: fit-content;
+  border: 1px solid ${props => props.theme.colors.border};
+
+  span {
+    width: 6px;
+    height: 6px;
+    background: ${props => props.theme.colors.accentPrimary};
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+  }
+
+  span:nth-child(1) { animation-delay: -0.32s; }
+  span:nth-child(2) { animation-delay: -0.16s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.0); }
+  }
+`;
+
 const Chatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
-      text: 'Hello! 👋 I\'m your YourFinance Assistant. How can I help you today?',
+      text: 'Hello! 👋 I\'m your Plutus Assistant. How can I help you today?',
       isBot: true,
       timestamp: new Date()
     }
@@ -219,48 +265,66 @@ const Chatbot: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
 
   const findResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase().trim();
+    const words = userMessage.toLowerCase().trim().split(/\s+/);
+    let bestMatch = null;
+    let highestScore = 0;
 
     for (const faq of FAQs) {
-      if (faq.keywords.some(keyword => lowerMessage.includes(keyword))) {
-        return faq.response;
+      let score = 0;
+      for (const keyword of faq.keywords) {
+        if (userMessage.toLowerCase().includes(keyword)) {
+          score += 2; // Exact keyword match
+        }
+        for (const word of words) {
+          if (word === keyword) score += 3; // Word-for-word match
+        }
+      }
+
+      if (score > highestScore) {
+        highestScore = score;
+        bestMatch = faq;
       }
     }
 
-    return "Sorry, I didn't quite understand that. Try asking me about:\n• Portfolio management\n• Stock sectors\n• Charts and graphs\n• Gold/Silver prices\n• News features\n• How to use the app";
+    if (highestScore > 1) {
+      return bestMatch!.response;
+    }
+
+    return "I'm still learning about that! 🧠 Try asking about:\n• Gold/Silver prices\n• P/E Ratio or RSI\n• Portfolio management\n• Market predictions\n• App features like API keys";
   };
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
 
-    // Add user message
+    const userMsgText = inputValue;
     const userMessage: ChatMessage = {
-      id: String(messages.length + 1),
-      text: inputValue,
+      id: Date.now().toString(),
+      text: userMsgText,
       isBot: false,
       timestamp: new Date()
     };
 
-    setMessages([...messages, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInputValue('');
+    setIsTyping(true);
 
-    // Simulate bot response delay
+    // Simulate bot thinking/typing
     setTimeout(() => {
-      const response = findResponse(inputValue);
+      const response = findResponse(userMsgText);
       const botMessage: ChatMessage = {
-        id: String(messages.length + 2),
+        id: (Date.now() + 1).toString(),
         text: response,
         isBot: true,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, botMessage]);
-    }, 500);
+      setIsTyping(false);
+    }, 1200);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSendMessage();
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSendMessage();
   };
 
   return (
@@ -268,24 +332,22 @@ const Chatbot: React.FC = () => {
       <ChatbotToggle
         onClick={() => setIsOpen(!isOpen)}
         animate={{ scale: isOpen ? 0.9 : 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
         title="Chat Assistant"
       >
         {isOpen ? '✕' : '💬'}
       </ChatbotToggle>
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isOpen && (
           <ChatWindow
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            transition={{ duration: 0.3 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           >
             <ChatHeader>
-              <div>🤖</div>
-              <ChatTitle>YourFinance Assistant</ChatTitle>
+              <ChatTitle>Assistant</ChatTitle>
+              <div style={{ opacity: 0.6, fontSize: '0.8rem' }}>Online</div>
             </ChatHeader>
 
             <MessageList>
@@ -295,24 +357,38 @@ const Chatbot: React.FC = () => {
                   isBot={message.isBot}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
                 >
                   <MessageBubble isBot={message.isBot}>
-                    {message.text}
+                    {message.text.split('\n').map((line, i) => (
+                      <div key={i}>{line}</div>
+                    ))}
                   </MessageBubble>
                 </Message>
               ))}
+              {isTyping && (
+                <Message isBot={true} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                  <TypingIndicator>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </TypingIndicator>
+                </Message>
+              )}
             </MessageList>
 
-            <InputContainer>
-              <ChatInput
+            <InputContainer onSubmit={handleSubmit}>
+              <Input
                 type="text"
-                placeholder="Ask me anything..."
+                placeholder="Type a message..."
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
               />
-              <SendButton onClick={handleSendMessage}>Send</SendButton>
+              <SendButton type="submit" disabled={!inputValue.trim()}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </SendButton>
             </InputContainer>
           </ChatWindow>
         )}
