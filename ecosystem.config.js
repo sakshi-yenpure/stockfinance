@@ -23,7 +23,7 @@ module.exports = {
     {
       name: 'yourfinance-backend',
       script: 'python',
-      args: 'manage.py runserver 0.0.0.0:8000',
+      args: 'manage.py runserver 0.0.0.0:8000 --noreload',
       cwd: './backend',
       instances: 1,
       exec_mode: 'fork',
@@ -33,10 +33,12 @@ module.exports = {
       env: {
         DEBUG: 'True',
         PYTHONUNBUFFERED: '1',
+        DJANGO_SETTINGS_MODULE: 'backend.settings',
       },
       env_production: {
-        DEBUG: 'False',
+        DEBUG: 'True',
         PYTHONUNBUFFERED: '1',
+        DJANGO_SETTINGS_MODULE: 'backend.settings',
       },
       error_file: '../logs/backend-error.log',
       out_file: '../logs/backend-out.log',
