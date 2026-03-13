@@ -1,7 +1,7 @@
 // authService.ts
 // Handles communication with backend authentication endpoints and token storage
 
-const API_BASE = process.env.REACT_APP_API_BASE || 'http://127.0.0.1:8000';
+const API_BASE = process.env.REACT_APP_API_BASE || '/api'; // relative path
 
 interface Tokens {
   access: string;
@@ -29,6 +29,7 @@ export interface LoginData {
   password: string;
 }
 
+// Local storage helpers
 const saveTokens = (tokens: Tokens) => {
   localStorage.setItem('accessToken', tokens.access);
   localStorage.setItem('refreshToken', tokens.refresh);
@@ -41,11 +42,21 @@ const clearTokens = () => {
 
 const getAccessToken = () => localStorage.getItem('accessToken');
 
+// Convenience helper to attach Authorization header
+export const authFetch = (input: RequestInfo, init?: RequestInit) => {
+  const token = getAccessToken();
+  const headers = new Headers(init?.headers || {});
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+  return fetch(input, { ...init, headers });
+};
+
+// Main auth service
 export const authService = {
   register: async (data: RegisterData): Promise<AuthResponse> => {
-    const res = await fetch(`${API_BASE}/api/auth/register/`, {      method: 'POST',
+    const res = await fetch(`${API_BASE}/auth/register/`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
     const body = await res.json();
     if (!res.ok) throw body;
@@ -54,9 +65,10 @@ export const authService = {
   },
 
   login: async (data: LoginData): Promise<AuthResponse> => {
-    const res = await fetch(`${API_BASE}/api/auth/login/`, {      method: 'POST',
+    const res = await fetch(`${API_BASE}/auth/login/`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
     const body = await res.json();
     if (!res.ok) throw body;
@@ -68,9 +80,9 @@ export const authService = {
     try {
       const token = getAccessToken();
       if (token) {
-        await fetch(`${API_BASE}/api/auth/logout/`, {
+        await fetch(`${API_BASE}/auth/logout/`, {
           method: 'POST',
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
       }
     } catch (err) {
@@ -83,17 +95,10 @@ export const authService = {
   getCurrentUser: async (): Promise<any> => {
     const token = getAccessToken();
     if (!token) throw new Error('No access token');
-    const res = await fetch(`${API_BASE}/api/auth/me/`, {      headers: { Authorization: `Bearer ${token}` }
+    const res = await fetch(`${API_BASE}/auth/me/`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error('Failed to fetch user');
     return res.json();
-  }
-};
-
-// convenience helper to attach Authorization header
-export const authFetch = (input: RequestInfo, init?: RequestInit) => {
-  const token = getAccessToken();
-  const headers = new Headers(init?.headers || {});
-  if (token) headers.set('Authorization', `Bearer ${token}`);
-  return fetch(input, { ...init, headers });
+  },
 };
